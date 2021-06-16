@@ -1,0 +1,9 @@
+
+cd GetwholeScale && mkdir build && cd build && cmake ..
+make  
+
+usage:
+./wholeScale -i ~/Desktop/ceiling_and_3d_model/xiwuguoji_C.png -o ceiling_to_physical_tile_ratio.txt  -s ceiling_line_detection.png
+
+wiki:http://wiki.corp.bianlifeng.com/pages/viewpage.action?pageId=236651588
+

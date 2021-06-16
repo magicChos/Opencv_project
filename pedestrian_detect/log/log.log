@@ -1,0 +1,4 @@
+  File "webapp.py", line 26
+    return Response(json.dumps({'msg': f'exception: {e}', 'status': -1024, 'data': None), mimetype='application/json', status=500)
+                                                                                       ^
+SyntaxError: invalid syntax

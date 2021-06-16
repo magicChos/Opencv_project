@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/han/data/project/Opencv_Project/test/main.cpp
+opencv2/opencv.hpp
+-
+iostream
+-
+chrono
+-
+vector
+-
+
