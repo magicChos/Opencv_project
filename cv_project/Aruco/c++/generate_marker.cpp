@@ -90,35 +90,9 @@ bool boardPoseEstimation(cv::Mat &boardImg,
 int main(int argc, char **argv)
 {
     auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
-    // cv::Mat marker = createMarker(dictionary);
-    // cv::cvtColor(marker, marker, CV_GRAY2BGR);
-    // std::cout << marker.rows << " , " << marker.cols << ", " << marker.channels() << std::endl;
-
-    // cv::Mat image = cv::Mat(cv::Size(1000, 800), CV_8UC3, cv::Scalar(255, 255, 255));
-
-    // cv::Mat roi = image(cv::Rect(100, 100, 200, 200));
-    // marker.copyTo(roi);
-
-    // std::vector<std::vector<cv::Point2f>> corners;
-
-    // markerDetect(dictionary, image, corners);
 
     cv::Mat cameraMatrix, distCoeffs;
     fetchCameraParams(cameraMatrix, distCoeffs);
-
-    // std::vector<cv::Vec3d> rvecs;
-    // std::vector<cv::Vec3d> tvecs;
-
-    // poseEstimation(image, rvecs, tvecs, cameraMatrix, distCoeffs, dictionary);
-
-    // std::cout << "rvecs size: " << rvecs.size() << std::endl;
-    // for (int i = 0; i < rvecs.size(); i++)
-    // {
-    //     std::cout << "rvec: " << rvecs[i] << std::endl;
-    //     std::cout << "tvec: " << tvecs[i] << std::endl;
-    //     //绘制坐标轴，检查姿态估计结果
-    //     cv::aruco::drawAxis(image, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.02);
-    // }
 
     cv::Mat boardImg;
     auto board = createArucoBoard(boardImg, dictionary);
@@ -126,9 +100,9 @@ int main(int argc, char **argv)
     cv::Vec3d rvecs, tvecs;
     boardPoseEstimation(boardImg, rvecs, tvecs, board, cameraMatrix, distCoeffs, dictionary);
 
-    // cv::imshow("marker", image);
     cv::imshow("boradImg", boardImg);
     cv::waitKey(0);
+
 
     return 0;
 }
