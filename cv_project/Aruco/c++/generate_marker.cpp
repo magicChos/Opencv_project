@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-cv::Mat createMarker(const cv::Ptr<cv::aruco::Dictionary> dict, const int id = 1, const int sidePixels = 200)
+cv::Mat createMarker(const cv::Ptr<cv::aruco::Dictionary> dict, const int id = 1, const int sidePixels = 400)
 {
     cv::Mat marker;
     cv::aruco::drawMarker(dict, id, sidePixels, marker, 1);
@@ -42,8 +42,8 @@ void markerDetect(const cv::Ptr<cv::aruco::Dictionary> dict,
 
 void fetchCameraParams(cv::Mat &cameraMatrix, cv::Mat &distCoeffs)
 {
-    cameraMatrix = (cv::Mat_<double>(3 , 3) << 657.1548323619423, 0, 291.8582472145741, 0, 647.384819351103, 391.254810476919, 0, 0, 1);
-    distCoeffs = (cv::Mat_<double>(1 , 5) << 0.1961793476399528, -1.38146317350581, -0.002301820186177369, -0.001054637905895881, 2.458286937422959);
+    cameraMatrix = (cv::Mat_<double>(3, 3) << 657.1548323619423, 0, 291.8582472145741, 0, 647.384819351103, 391.254810476919, 0, 0, 1);
+    distCoeffs = (cv::Mat_<double>(1, 5) << 0.1961793476399528, -1.38146317350581, -0.002301820186177369, -0.001054637905895881, 2.458286937422959);
 }
 
 // marker位姿估计
@@ -60,6 +60,10 @@ bool poseEstimation(cv::Mat &marker,
     markerDetect(dict, marker, corners, ids);
     cv::aruco::estimatePoseSingleMarkers(corners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
 
+    for (int i = 0; i < ids.size(); ++i)
+    {
+        cv::aruco::drawAxis(marker, cameraMatrix, distCoeffs, rvecs, tvecs, 0.01);
+    }
     return true;
 }
 
@@ -95,7 +99,7 @@ int main(int argc, char **argv)
     fetchCameraParams(cameraMatrix, distCoeffs);
 
     cv::Mat boardImg;
-    auto board = createArucoBoard(boardImg, dictionary);
+    auto board = createArucoBoard(boardImg, dictionary, 6, 6);
     cv::cvtColor(boardImg, boardImg, CV_GRAY2BGR);
     cv::Vec3d rvecs, tvecs;
     boardPoseEstimation(boardImg, rvecs, tvecs, board, cameraMatrix, distCoeffs, dictionary);
@@ -103,6 +107,18 @@ int main(int argc, char **argv)
     cv::imshow("boradImg", boardImg);
     cv::waitKey(0);
 
+    cv::Mat marker = createMarker(dictionary, 16);
+    cv::Mat back_img = cv::Mat(800, 800, marker.type(), cv::Scalar(255, 255, 255));
+    cv::Mat roi = back_img(cv::Rect(200, 200, marker.cols, marker.rows));
+    marker.copyTo(roi);
+
+    std::vector<cv::Vec3d> r_vecs;
+    std::vector<cv::Vec3d> t_vecs;
+    cv::cvtColor(back_img, back_img, CV_GRAY2BGR);
+    poseEstimation(back_img, r_vecs, t_vecs, cameraMatrix, distCoeffs, dictionary, 0.11);
+
+    cv::imshow("marker", back_img);
+    cv::waitKey(0);
 
     return 0;
 }
