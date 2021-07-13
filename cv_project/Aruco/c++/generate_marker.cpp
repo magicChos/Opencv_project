@@ -14,88 +14,88 @@
 
 
 
-cv::Mat createMarker(const cv::Ptr<cv::aruco::Dictionary> dict, const int id = 1, const int sidePixels = 400)
-{
-    cv::Mat marker;
-    cv::aruco::drawMarker(dict, id, sidePixels, marker, 1);
+// cv::Mat createMarker(const cv::Ptr<cv::aruco::Dictionary> dict, const int id = 1, const int sidePixels = 400)
+// {
+//     cv::Mat marker;
+//     cv::aruco::drawMarker(dict, id, sidePixels, marker, 1);
 
-    return marker;
-}
+//     return marker;
+// }
 
-// 创建aruco标记板
-cv::Ptr<cv::aruco::GridBoard> createArucoBoard(cv::Mat &boardImg,
-                                               const cv::Ptr<cv::aruco::Dictionary> &dict,
-                                               const int markersX = 5,
-                                               const int markersY = 7,
-                                               const float markerLength = 0.04,
-                                               const float markerSaparation = 0.01)
-{
-    auto board = cv::aruco::GridBoard::create(markersX, markersY, markerLength, markerSaparation, dict);
-    board->draw(cv::Size(800, 600), boardImg, 10, 1);
-    return board;
-}
+// // 创建aruco标记板
+// cv::Ptr<cv::aruco::GridBoard> createArucoBoard(cv::Mat &boardImg,
+//                                                const cv::Ptr<cv::aruco::Dictionary> &dict,
+//                                                const int markersX = 5,
+//                                                const int markersY = 7,
+//                                                const float markerLength = 0.04,
+//                                                const float markerSaparation = 0.01)
+// {
+//     auto board = cv::aruco::GridBoard::create(markersX, markersY, markerLength, markerSaparation, dict);
+//     board->draw(cv::Size(800, 600), boardImg, 10, 1);
+//     return board;
+// }
 
-void markerDetect(const cv::Ptr<cv::aruco::Dictionary> dict,
-                  cv::Mat &src,
-                  std::vector<std::vector<cv::Point2f>> &corners,
-                  std::vector<int> &ids)
-{
-    std::vector<std::vector<cv::Point2f>> rejectedImgPoints;
-    auto parameters = cv::aruco::DetectorParameters::create();
-    cv::aruco::detectMarkers(src, dict, corners, ids, parameters, rejectedImgPoints);
-    cv::aruco::drawDetectedMarkers(src, corners, ids, cv::Scalar(0, 255, 0));
+// void markerDetect(const cv::Ptr<cv::aruco::Dictionary> dict,
+//                   cv::Mat &src,
+//                   std::vector<std::vector<cv::Point2f>> &corners,
+//                   std::vector<int> &ids)
+// {
+//     std::vector<std::vector<cv::Point2f>> rejectedImgPoints;
+//     auto parameters = cv::aruco::DetectorParameters::create();
+//     cv::aruco::detectMarkers(src, dict, corners, ids, parameters, rejectedImgPoints);
+//     cv::aruco::drawDetectedMarkers(src, corners, ids, cv::Scalar(0, 255, 0));
 
-    std::cout << "corner size: " << corners.size() << std::endl;
-}
+//     std::cout << "corner size: " << corners.size() << std::endl;
+// }
 
-// 增强标记检测
-// aruco::refineDetectedMarkers()
+// // 增强标记检测
+// // aruco::refineDetectedMarkers()
 
-void fetchCameraParams(cv::Mat &cameraMatrix, cv::Mat &distCoeffs)
-{
-    cameraMatrix = (cv::Mat_<double>(3, 3) << 674.6644165230119, 0, 322.2413306238805, 0, 673.8510341922967, 246.8952097749414, 0, 0, 1);
-    distCoeffs = (cv::Mat_<double>(1, 5) << 0.07723134446474604, -0.05027556760465571, 0.003860032830530752, 0.001406508033458981, -0.5426930240877859);
-}
+// void fetchCameraParams(cv::Mat &cameraMatrix, cv::Mat &distCoeffs)
+// {
+//     cameraMatrix = (cv::Mat_<double>(3, 3) << 674.6644165230119, 0, 322.2413306238805, 0, 673.8510341922967, 246.8952097749414, 0, 0, 1);
+//     distCoeffs = (cv::Mat_<double>(1, 5) << 0.07723134446474604, -0.05027556760465571, 0.003860032830530752, 0.001406508033458981, -0.5426930240877859);
+// }
 
 
 
-// marker位姿估计
-bool boardPoseEstimation(cv::Mat &boardImg,
-                         cv::Vec3d &rvecs,
-                         cv::Vec3d &tvecs,
-                         const cv::Ptr<cv::aruco::GridBoard> board,
-                         const cv::Mat &cameraMatrix,
-                         const cv::Mat &distCoeffs,
-                         const cv::Ptr<cv::aruco::Dictionary> dict)
-{
-    std::vector<std::vector<cv::Point2f>> corners;
-    std::vector<int> ids;
-    markerDetect(dict, boardImg, corners, ids);
-    std::cout << "---------------------------" << std::endl;
+// // marker位姿估计
+// bool boardPoseEstimation(cv::Mat &boardImg,
+//                          cv::Vec3d &rvecs,
+//                          cv::Vec3d &tvecs,
+//                          const cv::Ptr<cv::aruco::GridBoard> board,
+//                          const cv::Mat &cameraMatrix,
+//                          const cv::Mat &distCoeffs,
+//                          const cv::Ptr<cv::aruco::Dictionary> dict)
+// {
+//     std::vector<std::vector<cv::Point2f>> corners;
+//     std::vector<int> ids;
+//     markerDetect(dict, boardImg, corners, ids);
+//     std::cout << "---------------------------" << std::endl;
 
-    int boardNum = cv::aruco::estimatePoseBoard(corners, ids, board, cameraMatrix, distCoeffs, rvecs, tvecs);
-    std::cout << "boardNum: " << boardNum << std::endl;
-    if (boardNum > 0)
-    {
-        cv::aruco::drawAxis(boardImg, cameraMatrix, distCoeffs, rvecs, tvecs, 0.04);
-    }
+//     int boardNum = cv::aruco::estimatePoseBoard(corners, ids, board, cameraMatrix, distCoeffs, rvecs, tvecs);
+//     std::cout << "boardNum: " << boardNum << std::endl;
+//     if (boardNum > 0)
+//     {
+//         cv::aruco::drawAxis(boardImg, cameraMatrix, distCoeffs, rvecs, tvecs, 0.04);
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
-Eigen::MatrixXd Mat2MatrixXd(const cv::Mat &R)
-{
-    Eigen::MatrixXd T(R.rows, R.cols);
-    cv::cv2eigen(R, T);
-    return T;
-}
+// Eigen::MatrixXd Mat2MatrixXd(const cv::Mat &R)
+// {
+//     Eigen::MatrixXd T(R.rows, R.cols);
+//     cv::cv2eigen(R, T);
+//     return T;
+// }
 
 int main(int argc, char **argv)
 {
     auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
 
-    cv::Mat cameraMatrix, distCoeffs;
-    fetchCameraParams(cameraMatrix, distCoeffs);
+    // cv::Mat cameraMatrix, distCoeffs;
+    // fetchCameraParams(cameraMatrix, distCoeffs);
 
     // 生成aruco board
     // cv::Mat boardImg;
@@ -136,6 +136,7 @@ int main(int argc, char **argv)
 
     std::shared_ptr<PoseEstamation> poseEstimation_obj = std::make_shared<PoseEstamation>(dictionary);
     float scale = poseEstimation_obj->poseEstimation(src_img, true);
+    std::cout << "scale: " << scale << std::endl;
     cv::imshow("src_img", src_img);
     cv::waitKey(0);
 

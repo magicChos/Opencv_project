@@ -79,6 +79,9 @@ void PoseEstamation::markerDetect(cv::Mat &src, std::vector<std::vector<cv::Poin
     {
         std::cout << i << std::endl;
     }
+
+    std::cout << "parameters: " << parameters->adaptiveThreshConstant << std::endl;
+    std::cout << parameters->polygonalApproxAccuracyRate << std::endl;
     cv::aruco::drawDetectedMarkers(src, corners, ids, cv::Scalar(255, 0, 0));
 }
 

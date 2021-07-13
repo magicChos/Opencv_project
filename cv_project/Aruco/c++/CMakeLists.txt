@@ -31,7 +31,7 @@ else ()
     endif ()
 endif ()
 
-FIND_PACKAGE( OpenCV )
+FIND_PACKAGE( OpenCV 3.2.0)
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
 
 include_directories(.)
