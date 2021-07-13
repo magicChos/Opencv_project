@@ -34,9 +34,9 @@ endif ()
 FIND_PACKAGE( OpenCV )
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
 
-# include_directories(.)
+include_directories(.)
 # include_directories(/usr/local/include)
 # include_directories(/usr/local/Cellar/opencv/4.2.0/include/opencv4)
-add_executable(generate_marker generate_marker.cpp)
+add_executable(generate_marker generate_marker.cpp poseestamation.cpp)
 TARGET_LINK_LIBRARIES(generate_marker LINK_PUBLIC ${OpenCV_LIBS} pthread)
 
