@@ -12,6 +12,8 @@ public:
     PoseEstamation(const cv::Ptr<cv::aruco::Dictionary> &dict , const float markerLength = 0.15);
 
     float poseEstimation(cv::Mat &src_img , const bool showFlag = false);
+    void getRVec(cv::Vec3d &rvec) const;
+    void getTVec(cv::Vec3d &tvec) const;
 
 private:
     void markerDetect(cv::Mat &src ,

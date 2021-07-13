@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     // marker.copyTo(roi);
     // cv::cvtColor(back_img, back_img, CV_GRAY2BGR);
 
-    cv::Mat src_img = cv::imread("/home/han/project/Opencv_project/cv_project/Aruco/test_data/1.jpg");
+    cv::Mat src_img = cv::imread("/home/han/project/Opencv_project/cv_project/Aruco/c++/1.jpg");
 
     // std::vector<cv::Vec3d> r_vecs;
     // std::vector<cv::Vec3d> t_vecs;
