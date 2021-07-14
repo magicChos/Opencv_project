@@ -45,6 +45,8 @@ float PoseEstamation::poseEstimation(cv::Mat &src_img, const bool showFlag)
             cv::Point2i sub_pt = (corners[0][i] - corners[0][i - 1]);
             dists.push_back(computeDist(sub_pt));
         }
+
+        std::cout << "dist: " << dists[i] << std::endl;
     }
 
     float dist = std::accumulate(dists.begin(), dists.end(), 0) / 4.0;
@@ -62,26 +64,17 @@ void PoseEstamation::getTVec(cv::Vec3d &tvec) const
     tvec = m_tvecs;
 }
 
+void PoseEstamation::getCorners(std::vector<cv::Point2f> &corners) const
+{
+    corners = m_corners;
+}
+
 void PoseEstamation::markerDetect(cv::Mat &src, std::vector<std::vector<cv::Point2f>> &corners, std::vector<int> &ids)
 {
     std::vector<std::vector<cv::Point2f>> rejectedImgPoints;
     auto parameters = cv::aruco::DetectorParameters::create();
     cv::aruco::detectMarkers(src, m_dict, corners, ids, parameters, rejectedImgPoints);
-
-    std::cout << "corners" << std::endl;
-    for (auto c : corners[0])
-    {
-        std::cout << c << std::endl;
-    }
-
-    std::cout << "ids" << std::endl;
-    for (auto i : ids)
-    {
-        std::cout << i << std::endl;
-    }
-
-    std::cout << "parameters: " << parameters->adaptiveThreshConstant << std::endl;
-    std::cout << parameters->polygonalApproxAccuracyRate << std::endl;
+    m_corners = corners[0];
     cv::aruco::drawDetectedMarkers(src, corners, ids, cv::Scalar(255, 0, 0));
 }
 

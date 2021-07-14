@@ -12,8 +12,6 @@
 #include "poseestamation.h"
 #include <memory>
 
-
-
 // cv::Mat createMarker(const cv::Ptr<cv::aruco::Dictionary> dict, const int id = 1, const int sidePixels = 400)
 // {
 //     cv::Mat marker;
@@ -51,13 +49,11 @@
 // // 增强标记检测
 // // aruco::refineDetectedMarkers()
 
-// void fetchCameraParams(cv::Mat &cameraMatrix, cv::Mat &distCoeffs)
-// {
-//     cameraMatrix = (cv::Mat_<double>(3, 3) << 674.6644165230119, 0, 322.2413306238805, 0, 673.8510341922967, 246.8952097749414, 0, 0, 1);
-//     distCoeffs = (cv::Mat_<double>(1, 5) << 0.07723134446474604, -0.05027556760465571, 0.003860032830530752, 0.001406508033458981, -0.5426930240877859);
-// }
-
-
+void fetchCameraParams(cv::Mat &cameraMatrix, cv::Mat &distCoeffs)
+{
+    cameraMatrix = (cv::Mat_<double>(3, 3) << 674.6644165230119, 0, 322.2413306238805, 0, 673.8510341922967, 246.8952097749414, 0, 0, 1);
+    distCoeffs = (cv::Mat_<double>(1, 5) << 0.07723134446474604, -0.05027556760465571, 0.003860032830530752, 0.001406508033458981, -0.5426930240877859);
+}
 
 // // marker位姿估计
 // bool boardPoseEstimation(cv::Mat &boardImg,
@@ -83,19 +79,19 @@
 //     return true;
 // }
 
-// Eigen::MatrixXd Mat2MatrixXd(const cv::Mat &R)
-// {
-//     Eigen::MatrixXd T(R.rows, R.cols);
-//     cv::cv2eigen(R, T);
-//     return T;
-// }
+Eigen::MatrixXd Mat2MatrixXd(const cv::Mat &R)
+{
+    Eigen::MatrixXd T(R.rows, R.cols);
+    cv::cv2eigen(R, T);
+    return T;
+}
 
 int main(int argc, char **argv)
 {
     auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
 
-    // cv::Mat cameraMatrix, distCoeffs;
-    // fetchCameraParams(cameraMatrix, distCoeffs);
+    cv::Mat cameraMatrix, distCoeffs;
+    fetchCameraParams(cameraMatrix, distCoeffs);
 
     // 生成aruco board
     // cv::Mat boardImg;
@@ -114,7 +110,7 @@ int main(int argc, char **argv)
     // marker.copyTo(roi);
     // cv::cvtColor(back_img, back_img, CV_GRAY2BGR);
 
-    cv::Mat src_img = cv::imread("/home/han/project/Opencv_project/cv_project/Aruco/c++/1.jpg");
+    cv::Mat src_img = cv::imread("/home/han/project/Opencv_project/cv_project/Aruco/c++/8.jpg");
 
     // std::vector<cv::Vec3d> r_vecs;
     // std::vector<cv::Vec3d> t_vecs;
@@ -137,7 +133,65 @@ int main(int argc, char **argv)
     std::shared_ptr<PoseEstamation> poseEstimation_obj = std::make_shared<PoseEstamation>(dictionary);
     float scale = poseEstimation_obj->poseEstimation(src_img, true);
     std::cout << "scale: " << scale << std::endl;
+
+    cv::Vec3d rvec, tvec;
+    poseEstimation_obj->getRVec(rvec);
+    poseEstimation_obj->getTVec(tvec);
+
+    cv::Mat rotation_matrix;
+    cv::Rodrigues(rvec, rotation_matrix);
+
+    Eigen::Matrix3d eigen_rotaion_matrix = Mat2MatrixXd(rotation_matrix);
+    std::cout << eigen_rotaion_matrix << std::endl;
+
+    //2.1 旋转矩阵转换为欧拉角
+    //ZYX顺序，即先绕x轴roll,再绕y轴pitch,最后绕z轴yaw,0表示X轴,1表示Y轴,2表示Z轴
+    Eigen::Vector3d euler_angles = eigen_rotaion_matrix.eulerAngles(2, 1, 0);
+    std::cout << "yaw(z) pitch(y) roll(x) = " << euler_angles.transpose() << std::endl;
+
+    std::cout << "tvec: " << tvec << std::endl;
+
+    cv::Point3f p1(-0.075, 0.075, 0);
+    cv::Point3f p2(0.075, 0.075, 0);
+    cv::Point3f p3(0.075, -0.075, 0);
+    cv::Point3f p4(-0.075, -0.075, 0);
+
+    std::vector<cv::Point3f> obj_points;
+    obj_points.push_back(p1);
+    obj_points.push_back(p2);
+    obj_points.push_back(p3);
+    obj_points.push_back(p4);
+
+    cv::Mat new_rotation_matrix = (cv::Mat_<double>(3, 3) << 1, 0, 0, 0, -1, 0, 0, 0, -1);
+    cv::Vec3d new_rvec;
+    cv::Rodrigues(new_rotation_matrix, new_rvec);
+    cv::Vec3d new_tvec(0, 0, 1.2);
+
+    std::vector<cv::Point2f> projectedPoints;
+    cv::projectPoints(obj_points, new_rvec, new_tvec, cameraMatrix, distCoeffs, projectedPoints);
+
+    std::cout << "project points: " << std::endl;
+    for (auto p : projectedPoints)
+    {
+        std::cout << p << std::endl;
+    }
+
+    std::vector<cv::Point2f> corners;
+    poseEstimation_obj->getCorners(corners);
+    std::cout << "corners: " << std::endl;
+    for(auto p : corners)
+    {
+        std::cout << p << std::endl;
+    }
+
+    cv::Mat warpMatrix = cv::getPerspectiveTransform(corners, projectedPoints);
+    std::cout << "warpMatrix: " << warpMatrix << std::endl;
+
+    cv::Mat dst;
+    cv::warpPerspective(src_img, dst, warpMatrix, src_img.size());
+
     cv::imshow("src_img", src_img);
+    cv::imshow("dst", dst);
     cv::waitKey(0);
 
     return 0;

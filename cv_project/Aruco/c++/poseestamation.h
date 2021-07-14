@@ -14,6 +14,7 @@ public:
     float poseEstimation(cv::Mat &src_img , const bool showFlag = false);
     void getRVec(cv::Vec3d &rvec) const;
     void getTVec(cv::Vec3d &tvec) const;
+    void getCorners(std::vector<cv::Point2f> &corners) const;
 
 private:
     void markerDetect(cv::Mat &src ,
