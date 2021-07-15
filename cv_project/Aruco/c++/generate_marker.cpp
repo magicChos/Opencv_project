@@ -86,6 +86,33 @@ Eigen::MatrixXd Mat2MatrixXd(const cv::Mat &R)
     return T;
 }
 
+// 生成虚拟角点
+void generateP3d(std::vector<cv::Point3f> &p3ds, const float halfMarkerLength = 0.075)
+{
+    float markerLength = halfMarkerLength * 2;
+    for (float i = halfMarkerLength; i >= -0.5; i -= markerLength)
+    {
+        for (float j = -halfMarkerLength; j < 0.5; j += markerLength)
+        {
+            p3ds.emplace_back(cv::Point3f(j, i, 0));
+        }
+    }
+}
+
+void generateVirtualP3d(std::vector<cv::Point3f> &p3ds, const int nrows = 3, const int ncols = 3, const float halfMarkerLength = 0.075)
+{
+    float markerLength = (halfMarkerLength * 2);
+    for (int i = 0; i < nrows + 1; ++i)
+    {
+        for (int j = 0; j < ncols + 1; ++j)
+        {
+            float x = (j - 0.5) * markerLength;
+            float y = (-i + 0.5) * markerLength;
+            p3ds.emplace_back(cv::Point3f(x, y, 0));
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
@@ -153,14 +180,16 @@ int main(int argc, char **argv)
 
     cv::Point3f p1(-0.075, 0.075, 0);
     cv::Point3f p2(0.075, 0.075, 0);
-    cv::Point3f p3(0.075, -0.075, 0);
-    cv::Point3f p4(-0.075, -0.075, 0);
+    // cv::Point3f p3(0.075, -0.075, 0);
+    // cv::Point3f p4(-0.075, -0.075, 0);
 
     std::vector<cv::Point3f> obj_points;
     obj_points.push_back(p1);
     obj_points.push_back(p2);
-    obj_points.push_back(p3);
-    obj_points.push_back(p4);
+    // obj_points.push_back(p3);
+    // obj_points.push_back(p4);
+
+    obj_points.push_back(cv::Point3f(0.225, 0.075, 0));
 
     cv::Mat new_rotation_matrix = (cv::Mat_<double>(3, 3) << 1, 0, 0, 0, -1, 0, 0, 0, -1);
     cv::Vec3d new_rvec;
@@ -171,27 +200,69 @@ int main(int argc, char **argv)
     cv::projectPoints(obj_points, new_rvec, new_tvec, cameraMatrix, distCoeffs, projectedPoints);
 
     std::cout << "project points: " << std::endl;
-    for (auto p : projectedPoints)
+    // for (auto p : projectedPoints)
+    // {
+    // std::cout << p << std::endl;
+    // }
+
+    // std::vector<cv::Point2f> corners;
+    // poseEstimation_obj->getCorners(corners);
+    // std::cout << "corners: " << std::endl;
+    // for(auto p : corners)
+    // {
+    //     std::cout << p << std::endl;
+    // }
+
+    // cv::Mat warpMatrix = cv::getPerspectiveTransform(corners, projectedPoints);
+    // std::cout << "warpMatrix: " << warpMatrix << std::endl;
+
+    // cv::Mat dst;
+    // cv::warpPerspective(src_img, dst, warpMatrix, src_img.size());
+
+    std::vector<cv::Point2f> projectedPoints_;
+    std::vector<cv::Point3f> generate_p3d;
+    // generateP3d(generate_p3d);
+
+    const int nrows = 3;
+    const int ncols = 3;
+
+    generateVirtualP3d(generate_p3d , nrows ,  ncols , 0.075);
+
+    cv::projectPoints(generate_p3d, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints_);
+    std::cout << "size: " << generate_p3d.size() << std::endl;
+
+    for (auto &p : projectedPoints_)
     {
         std::cout << p << std::endl;
+        cv::circle(src_img, cv::Point(p.x, p.y), 5, cv::Scalar(0, 0, 255), 2);
     }
 
-    std::vector<cv::Point2f> corners;
-    poseEstimation_obj->getCorners(corners);
-    std::cout << "corners: " << std::endl;
-    for(auto p : corners)
+    int nrows_expand = nrows + 1;
+    int ncols_expand = ncols + 1;
+    cv::Point2f start_pt, end_pt;
+    for (int i = 0; i < projectedPoints_.size(); ++i)
     {
-        std::cout << p << std::endl;
+        if ((i + 1) % ncols_expand == 0)
+        {
+            start_pt = projectedPoints_[i / ncols_expand * ncols_expand];
+            end_pt = projectedPoints_[i];
+            std::cout << start_pt << " , " << end_pt << std::endl;
+            cv::line(src_img, cv::Point(start_pt.x, start_pt.y), cv::Point(end_pt.x, end_pt.y), cv::Scalar(0, 255, 0), 2);
+        }
+        else if (i / ncols_expand >= ncols)
+        {
+            start_pt = projectedPoints_[i % ncols_expand];
+            end_pt = projectedPoints_[i];
+            cv::line(src_img, cv::Point(start_pt.x, start_pt.y), cv::Point(end_pt.x, end_pt.y), cv::Scalar(0, 255, 0), 2);
+        }
+        else
+        {
+            continue;
+        }
     }
-
-    cv::Mat warpMatrix = cv::getPerspectiveTransform(corners, projectedPoints);
-    std::cout << "warpMatrix: " << warpMatrix << std::endl;
-
-    cv::Mat dst;
-    cv::warpPerspective(src_img, dst, warpMatrix, src_img.size());
 
     cv::imshow("src_img", src_img);
-    cv::imshow("dst", dst);
+    // cv::imshow("dst", dst);
     cv::waitKey(0);
 
     return 0;
