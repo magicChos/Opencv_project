@@ -1,3 +1,0 @@
-/Users/han/Opencv_Project/g2o/g2o_learn/build/CMakeFiles/rebuild_cache.dir
-/Users/han/Opencv_Project/g2o/g2o_learn/build/CMakeFiles/edit_cache.dir
-/Users/han/Opencv_Project/g2o/g2o_learn/build/CMakeFiles/g2o_learn.dir
