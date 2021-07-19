@@ -1,3 +1,0 @@
-/home/han/data/project/Opencv_Project/ceres/build/CMakeFiles/rebuild_cache.dir
-/home/han/data/project/Opencv_Project/ceres/build/CMakeFiles/curve_fitting.dir
-/home/han/data/project/Opencv_Project/ceres/build/CMakeFiles/edit_cache.dir
