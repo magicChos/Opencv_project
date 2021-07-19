@@ -1,3 +1,0 @@
-/Users/han/Opencv_Project/sophus/build/CMakeFiles/rebuild_cache.dir
-/Users/han/Opencv_Project/sophus/build/CMakeFiles/edit_cache.dir
-/Users/han/Opencv_Project/sophus/build/CMakeFiles/useSophus.dir
