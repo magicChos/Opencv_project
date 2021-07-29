@@ -86,6 +86,9 @@ void test_CharucoDiamond(cv::Mat &src_img,
     for (size_t i = 0; i < rvecs.size(); ++i)
     {
         cv::aruco::drawAxis(src_img, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.05);
+        std::cout << tvecs[i] << std::endl;
+
+        std::cout << "dist: " <<  cv::norm(tvecs[i]) << std::endl;
     }
 
     // cv::imshow("inputImage", src_img);
@@ -100,45 +103,45 @@ void createCharucoDiamond(const cv::Ptr<cv::aruco::Dictionary> &dict, cv::Mat &o
 int main(int argc, char **argv)
 {
     auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
-    // cv::Mat image;
-    // createCharucoDiamond(dictionary , image);
-    // cv::imshow("image" , image);
-    // cv::waitKey(0);
+    cv::Mat image;
+    createCharucoDiamond(dictionary , image);
+    cv::imshow("image" , image);
+    cv::waitKey(0);
     
-    cv::Mat cameraMatrix, distCoeffs;
-    fetchCameraParams(cameraMatrix, distCoeffs);
+    // cv::Mat cameraMatrix, distCoeffs;
+    // fetchCameraParams(cameraMatrix, distCoeffs);
 
-    cameraMatrix = cameraMatrix * 2;
+    // cameraMatrix = cameraMatrix * 2;
 
-    cv::VideoWriter m_writer;
-    m_writer.open("demo.mp4" , CV_FOURCC('M', 'P', '4', '2') , 15 , cv::Size(640 , 480));
-    cv::VideoCapture cap(0);
-    if (!cap.isOpened())
-    {
-        std::cerr << "open camera failture" << std::endl;
-        return 0;
-    }
+    // cv::VideoWriter m_writer;
+    // m_writer.open("demo.mp4" , CV_FOURCC('M', 'P', '4', '2') , 15 , cv::Size(640 , 480));
+    // cv::VideoCapture cap(0);
+    // if (!cap.isOpened())
+    // {
+    //     std::cerr << "open camera failture" << std::endl;
+    //     return 0;
+    // }
 
-    cap.set(CV_CAP_PROP_FRAME_WIDTH , 1280);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT , 960);
+    // cap.set(CV_CAP_PROP_FRAME_WIDTH , 1280);
+    // cap.set(CV_CAP_PROP_FRAME_HEIGHT , 960);
 
 
-    cv::Mat frame;
-    while (true)
-    {
-        cap >> frame;
-        test_CharucoDiamond(frame, cameraMatrix, distCoeffs, dictionary);
-        m_writer.write(frame);
-        cv::imshow("frame", frame);
-        char key = cv::waitKey(25);
+    // cv::Mat frame;
+    // while (true)
+    // {
+    //     cap >> frame;
+    //     test_CharucoDiamond(frame, cameraMatrix, distCoeffs, dictionary , 0.048 , 0.038);
+    //     m_writer.write(frame);
+    //     cv::imshow("frame", frame);
+    //     char key = cv::waitKey(25);
 
-        if (key == 'q')
-        {
-            break;
-        }
-    }
-    cap.release();
-    m_writer.release();
+    //     if (key == 'q')
+    //     {
+    //         break;
+    //     }
+    // }
+    // cap.release();
+    // m_writer.release();
 
     return 1;
 }
