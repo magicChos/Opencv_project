@@ -86,6 +86,9 @@ void test_CharucoDiamond(cv::Mat &src_img,
     for (size_t i = 0; i < rvecs.size(); ++i)
     {
         cv::aruco::drawAxis(src_img, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.05);
+        std::cout << tvecs[i] << std::endl;
+
+        std::cout << "dist: " <<  cv::norm(tvecs[i]) << std::endl;
     }
 
     // cv::imshow("inputImage", src_img);
@@ -94,75 +97,51 @@ void test_CharucoDiamond(cv::Mat &src_img,
 
 void createCharucoDiamond(const cv::Ptr<cv::aruco::Dictionary> &dict, cv::Mat &output_marker)
 {
-    cv::aruco::drawCharucoDiamond(dict, cv::Vec4i(16, 45, 68, 28), 150, 75, output_marker);
+    cv::aruco::drawCharucoDiamond(dict, cv::Vec4i(16, 45, 68, 28), 200, 160, output_marker);
 }
 
 int main3(int argc, char **argv)
 {
     auto dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_6X6_250);
-    cv::Mat cameraMatrix, distCoeffs;
-    fetchCameraParams(cameraMatrix, distCoeffs);
+    cv::Mat image;
+    createCharucoDiamond(dictionary , image);
+    cv::imshow("image" , image);
+    cv::waitKey(0);
+    
+    // cv::Mat cameraMatrix, distCoeffs;
+    // fetchCameraParams(cameraMatrix, distCoeffs);
 
-    cv::VideoWriter m_writer;
-    m_writer.open("demo.mp4" , CV_FOURCC('M', 'P', '4', '2') , 15 , cv::Size(640 , 480));
-    cv::VideoCapture cap(0);
-    if (!cap.isOpened())
-    {
-        std::cerr << "open camera failture" << std::endl;
-        return 0;
-    }
+    // cameraMatrix = cameraMatrix * 2;
 
-    cv::Mat frame;
-    while (true)
-    {
-        cap >> frame;
-        test_CharucoDiamond(frame, cameraMatrix, distCoeffs, dictionary);
-        m_writer.write(frame);
-        cv::imshow("frame", frame);
-        char key = cv::waitKey(25);
-
-        if (key == 'q')
-        {
-            break;
-        }
-    }
-    cap.release();
-    m_writer.release();
-
-    // float squareLength = 0.055;
-    // float markerLength = 0.027;
-
-    // float squareLength = 0.053;
-    // float markerLength = 0.026;
-
-    // float squareLength = 0.038;
-    // float markerLength = 0.019;
-
-    // std::vector<int> markerIds;
-    // std::vector<std::vector<cv::Point2f>> markerCorners;
-
-    // // detect aruco markers
-    // cv::aruco::detectMarkers(inputImage, dictionary, markerCorners, markerIds);
-
-    // std::vector<cv::Vec4i> diamondIds;
-    // std::vector<std::vector<cv::Point2f>> diamondCorners;
-
-    // cv::aruco::detectCharucoDiamond(inputImage, markerCorners, markerIds, squareLength / markerLength, diamondCorners, diamondIds);
-
-    // std::vector<cv::Vec3d> rvecs, tvecs;
-    // cv::aruco::estimatePoseSingleMarkers(diamondCorners, squareLength, cameraMatrix, distCoeffs, rvecs, tvecs);
-
-    // std::cout << "rvecs size: " << rvecs.size() << " , tvecs size: " << tvecs.size() << std::endl;
-    // std::cout << "rvecs: " << rvecs[0] << std::endl;
-    // std::cout << "tvecs: " << tvecs[0] << std::endl;
-    // // draw axis
-    // for (size_t i = 0; i < rvecs.size(); ++i)
+    // cv::VideoWriter m_writer;
+    // m_writer.open("demo.mp4" , CV_FOURCC('M', 'P', '4', '2') , 15 , cv::Size(640 , 480));
+    // cv::VideoCapture cap(0);
+    // if (!cap.isOpened())
     // {
-    //     cv::aruco::drawAxis(inputImage, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], 0.05);
+    //     std::cerr << "open camera failture" << std::endl;
+    //     return 0;
     // }
 
-    // cv::imshow("inputImage", inputImage);
-    // cv::waitKey(0);
+    // cap.set(CV_CAP_PROP_FRAME_WIDTH , 1280);
+    // cap.set(CV_CAP_PROP_FRAME_HEIGHT , 960);
+
+
+    // cv::Mat frame;
+    // while (true)
+    // {
+    //     cap >> frame;
+    //     test_CharucoDiamond(frame, cameraMatrix, distCoeffs, dictionary , 0.048 , 0.038);
+    //     m_writer.write(frame);
+    //     cv::imshow("frame", frame);
+    //     char key = cv::waitKey(25);
+
+    //     if (key == 'q')
+    //     {
+    //         break;
+    //     }
+    // }
+    // cap.release();
+    // m_writer.release();
 
     return 1;
 }
