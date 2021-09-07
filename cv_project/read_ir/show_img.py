@@ -10,7 +10,5 @@ if __name__ == '__main__':
 
     img = cv2.imread(args.name)
     img = cv2.resize(img, (597, 448))
-    import pdb
-    pdb.set_trace()
     cv2.imshow('image', img)
     cv2.waitKey(0)
