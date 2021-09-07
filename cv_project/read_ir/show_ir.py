@@ -13,6 +13,14 @@ def raw2Color(ir_raw):
     return ir_color, ir_gray
 
 
+def computeH(src_points , dst_points):
+    src_points = np.float32(src_points).reshape(-1, 1, 2)
+    dst_points = np.float32(dst_points).reshape(-1, 1, 2)
+
+    H, mask = cv2.findHomography(src_points, dst_points, cv2.RANSAC, 5.0)
+    matchesMask = mask.ravel().tolist()
+    return H
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--color', required=True)
@@ -24,38 +32,27 @@ if __name__ == '__main__':
     color_img = cv2.resize(color_img, (597, 448))
     ir_color, ir_gray = raw2Color(ir_img)
 
-    cv2.imshow('ir_gray', ir_gray)
-    cv2.imshow("ir_color", ir_color)
-    cv2.imshow("color_img", color_img)
-    cv2.waitKey(0)
-
     ir_points = [[14, 9], [4, 162], [252, 175], [259, 29]]
     color_points = [[162, 139], [164, 265], [379, 255], [377, 141]]
 
-    ir_points = np.float32(ir_points).reshape(-1, 1, 2)
-    color_points = np.float32(color_points).reshape(-1, 1, 2)
-
-    H, mask = cv2.findHomography(ir_points, color_points, cv2.RANSAC, 5.0)
-    matchesMask = mask.ravel().tolist()
-    print(matchesMask)
+    H = computeH(ir_points , color_points)
 
     print("H: ", H)
 
-    h, w, d = ir_color.shape
-    pts = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]
-                     ).reshape(-1, 1, 2)
-    dst = cv2.perspectiveTransform(pts, H)
-    img2 = cv2.polylines(color_img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+    # h, w, d = ir_color.shape
+    # pts = np.float32([[0, 0], [0, h-1], [w-1, h-1], [w-1, 0]]
+    #                  ).reshape(-1, 1, 2)
+    # dst = cv2.perspectiveTransform(pts, H)
+    # img2 = cv2.polylines(color_img, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
 
-    cv2.imshow("img2", img2)
-    cv2.waitKey(0)
+    # cv2.imshow("img2", img2)
+    # cv2.waitKey(0)
 
     ir_color_dst = cv2.warpPerspective(ir_color , H , (597 , 448))
-    
-
-    dst = cv2.add(color_img , ir_color_dst)
     cv2.imshow("ir_color_dst", ir_color_dst)
-    cv2.imshow("dst" , dst)
+    cv2.imshow("color_img" , color_img)
+    # cv2.imshow("ret" , ret)
+    # cv2.imshow("mask" , mask)
     cv2.waitKey(0)
 
 
