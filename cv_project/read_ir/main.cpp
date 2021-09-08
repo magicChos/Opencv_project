@@ -19,31 +19,34 @@ void raw2Color(const cv::Mat &_raw, cv::Mat &_color, cv::Mat &_u16, cv::Mat &_u8
 
 int threshold = 50;
 
-void track_fun(int, void *)
+void fusionIRandRGB(cv::Mat &rgb_img, cv::Mat &ir_img, const float alpha)
 {
-    dst = rgb.clone();
-    float alpha = (float)threshold / 100;
-
-    for (int i = 0; i < rgb.rows; ++i)
+    for (int i = 0; i < rgb_img.rows; ++i)
     {
-        cv::Vec3b *curr = dst.ptr<cv::Vec3b>(i);
-        cv::Vec3b *curr_ir = perspectove_ir_color.ptr<cv::Vec3b>(i);
-        
-        for (int j = 0; j < rgb.cols; ++j)
+        cv::Vec3b *curr = rgb_img.ptr<cv::Vec3b>(i);
+        cv::Vec3b *curr_ir = ir_img.ptr<cv::Vec3b>(i);
+
+        for (int j = 0; j < rgb_img.cols; ++j)
         {
             cv::Vec3b &bgr = curr[j];
             cv::Vec3b ir_bgr = curr_ir[j];
             if (ir_bgr[0] == 0 && ir_bgr[1] == 0 && ir_bgr[2] == 0)
             {
                 continue;
-            } 
+            }
 
             bgr[0] = alpha * bgr[0] + ir_bgr[0] * (1 - alpha);
             bgr[1] = alpha * bgr[1] + ir_bgr[1] * (1 - alpha);
             bgr[2] = alpha * bgr[2] + ir_bgr[2] * (1 - alpha);
         }
     }
+}
 
+void track_fun(int, void *)
+{
+    dst = rgb.clone();
+    float alpha = (float)threshold / 100;
+    fusionIRandRGB(dst , perspectove_ir_color , alpha);
     cv::imshow("RGB", dst);
 }
 
@@ -56,8 +59,8 @@ int main(int argc, char **argv)
     rgb = cv::imread("/home/han/Desktop/Desktop/2021-09-06_12-39-07_604_21_rgb.png");
     cv::resize(rgb, rgb, cv::Size(597, 448));
 
-    cv::warpPerspective(ir_color , perspectove_ir_color , H , rgb.size());
-    cv::imshow("ir_color" , ir_color);
+    cv::warpPerspective(ir_color, perspectove_ir_color, H, rgb.size());
+    cv::imshow("ir_color", ir_color);
 
     cv::namedWindow("RGB", cv::WINDOW_AUTOSIZE);
     cv::createTrackbar("阈值", "RGB", &threshold, 100, track_fun);
