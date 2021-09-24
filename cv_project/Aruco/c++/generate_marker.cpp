@@ -172,7 +172,7 @@ int main(int argc, char **argv)
     // marker.copyTo(roi);
     // cv::cvtColor(back_img, back_img, CV_GRAY2BGR);
 
-    cv::Mat src_img = cv::imread("/home/han/project/Opencv_project/cv_project/Aruco/c++/1.jpg");
+    cv::Mat src_img = cv::imread("/home/han/project/Opencv_project/cv_project/Aruco/c++/2.jpg");
 
     std::shared_ptr<PoseEstamation> poseEstimation_obj = std::make_shared<PoseEstamation>(dictionary);
     float scale = poseEstimation_obj->poseEstimation(src_img, true);
@@ -253,7 +253,7 @@ int main(int argc, char **argv)
     for (auto &p : projectedPoints_)
     {
         std::cout << p << std::endl;
-        cv::circle(src_img, cv::Point(p.x, p.y), 5, cv::Scalar(0, 0, 255), 2);
+        // cv::circle(src_img, cv::Point(p.x, p.y), 5, cv::Scalar(0, 0, 255), 2);
     }
 
     int nrows_expand = nrows + 1;
@@ -266,13 +266,13 @@ int main(int argc, char **argv)
             start_pt = projectedPoints_[i / ncols_expand * ncols_expand];
             end_pt = projectedPoints_[i];
             std::cout << start_pt << " , " << end_pt << std::endl;
-            cv::line(src_img, cv::Point(start_pt.x, start_pt.y), cv::Point(end_pt.x, end_pt.y), cv::Scalar(0, 255, 0), 2);
+            // cv::line(src_img, cv::Point(start_pt.x, start_pt.y), cv::Point(end_pt.x, end_pt.y), cv::Scalar(0, 255, 0), 2);
         }
         else if (i / ncols_expand >= ncols)
         {
             start_pt = projectedPoints_[i % ncols_expand];
             end_pt = projectedPoints_[i];
-            cv::line(src_img, cv::Point(start_pt.x, start_pt.y), cv::Point(end_pt.x, end_pt.y), cv::Scalar(0, 255, 0), 2);
+            // cv::line(src_img, cv::Point(start_pt.x, start_pt.y), cv::Point(end_pt.x, end_pt.y), cv::Scalar(0, 255, 0), 2);
         }
         else
         {
